@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dad Wave - Sessions</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    input, select { padding: 6px; margin-right: 6px; margin-bottom: 6px; }
+    button { padding: 6px 12px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+    th { background: #f4f4f4; }
+    section { margin-bottom: 40px; }
+    h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
+    .form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .recommendation { background: #f0f7ff; border-left: 4px solid #0066cc; padding: 10px 14px; margin-top: 10px; border-radius: 4px; }
+    nav { margin-bottom: 30px; display: flex; gap: 12px; }
+    nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Dad Wave</h1>
+
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/exercises.html">Exercises</a>
+    <a href="/sessions.html">Sessions</a>
+    <a href="/profile.html">Profile</a>
+  </nav>
+
+  <section>
+    <h2>Log a Session</h2>
+    <div class="form-row">
+      <select id="session_exercise" onchange="loadRecommendation()">
+        <option value="">-- Select Exercise --</option>
+      </select>
+      <input type="number" id="session_weight" placeholder="Weight (lbs)" style="width:120px" />
+      <input type="number" id="session_reps" placeholder="Reps" style="width:80px" />
+      <input type="text" id="session_notes" placeholder="Notes (optional)" style="width:150px" />
+    </div>
+    <div id="recommendation-box" style="display:none" class="recommendation"></div>
+    <br/>
+    <button onclick="logSession()">Log Set</button>
+  </section>
+
+  <section>
+    <h2>Session History</h2>
+    <select id="history_exercise" onchange="loadSessions()">
+      <option value="">-- Select Exercise --</option>
+    </select>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Weight</th>
+          <th>Reps</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="session-list"></tbody>
+    </table>
+  </section>
+
+  <script src="/js/shared.js"></script>
+  <script>
+    function loadExerciseDropdowns() {
+      getExercises().then(data => {
+        const sessionSelect = document.getElementById('session_exercise');
+        const historySelect = document.getElementById('history_exercise');
+        sessionSelect.innerHTML = '<option value="">-- Select Exercise --</option>';
+        historySelect.innerHTML = '<option value="">-- Select Exercise --</option>';
+        data.forEach(ex => {
+          sessionSelect.appendChild(new Option(ex.name, ex.id));
+          historySelect.appendChild(new Option(ex.name, ex.id));
+        });
+      });
+    }
+
+    function loadRecommendation() {
+      const exercise_id = document.getElementById('session_exercise').value;
+      const box = document.getElementById('recommendation-box');
+      if (!exercise_id) { box.style.display = 'none'; return; }
+
+      fetch(`/api/recommendation/${exercise_id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.lastSession) { box.style.display = 'none'; return; }
+          box.style.display = 'block';
+          box.innerHTML = `<strong>Recommendation:</strong> ${data.message}<br>
+            <small>Last session: ${data.lastSession.weight} lbs x ${data.lastSession.reps} reps</small>`;
+          document.getElementById('session_weight').value = data.recommendedWeight;
+        });
+    }
+
+    function logSession() {
+      const exercise_id = parseInt(document.getElementById('session_exercise').value);
+      const weight = parseFloat(document.getElementById('session_weight').value);
+      const reps = parseInt(document.getElementById('session_reps').value);
+      const notes = document.getElementById('session_notes').value.trim();
+
+      if (!exercise_id || !weight || !reps) {
+        alert('Please select an exercise and enter weight and reps');
+        return;
+      }
+
+      fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercise_id, weight, reps, notes })
+      })
+        .then(res => res.json())
+        .then(() => {
+          document.getElementById('session_weight').value = '';
+          document.getElementById('session_reps').value = '';
+          document.getElementById('session_notes').value = '';
+          document.getElementById('recommendation-box').style.display = 'none';
+          document.getElementById('session_exercise').value = '';
+          const historySelect = document.getElementById('history_exercise');
+          if (parseInt(historySelect.value) === exercise_id) loadSessions();
+        });
+    }
+
+    function loadSessions() {
+      const exercise_id = document.getElementById('history_exercise').value;
+      if (!exercise_id) return;
+
+      fetch(`/api/sessions/${exercise_id}`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('session-list');
+          tbody.innerHTML = '';
+          data.forEach(s => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${formatDate(s.performed_at)}</td>
+              <td>${s.weight} lbs</td>
+              <td>${s.reps}</td>
+              <td>${s.notes || '-'}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    }
+
+    loadExerciseDropdowns();
+  </script>
+</body>
+</html>

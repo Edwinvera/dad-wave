@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dad Wave - Profile</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    input, select { padding: 6px; margin-right: 6px; margin-bottom: 6px; }
+    button { padding: 6px 12px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+    th { background: #f4f4f4; }
+    section { margin-bottom: 40px; }
+    h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
+    .form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .success { background: #f0fff4; border-left: 4px solid #00aa44; padding: 10px 14px; border-radius: 4px; margin-top: 10px; }
+    .increment-note { font-size: 0.85em; color: #666; }
+    nav { margin-bottom: 30px; display: flex; gap: 12px; }
+    nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Dad Wave</h1>
+
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/exercises.html">Exercises</a>
+    <a href="/sessions.html">Sessions</a>
+    <a href="/profile.html">Profile</a>
+  </nav>
+
+  <section>
+    <h2>My Profile</h2>
+    <div class="form-row">
+      <input type="text" id="profile_first_name" placeholder="First name" />
+      <input type="text" id="profile_last_name" placeholder="Last name" />
+      <input type="number" id="profile_age" placeholder="Age" style="width:80px" />
+    </div>
+    <div class="form-row">
+      <select id="profile_sex">
+        <option value="">-- Sex --</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="profile_unit" onchange="updateUnitLabel()">
+        <option value="lbs">lbs</option>
+        <option value="kg">kg</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input type="number" id="profile_bodyweight" placeholder="Bodyweight" style="width:130px" />
+      <span id="profile_unit_label" class="increment-note">lbs</span>
+    </div>
+    <button onclick="saveProfile()">Save Profile</button>
+    <div id="profile-success" style="display:none" class="success">Profile saved!</div>
+  </section>
+
+  <section>
+    <h2>Bodyweight History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Bodyweight</th>
+        </tr>
+      </thead>
+      <tbody id="bodyweight-history"></tbody>
+    </table>
+  </section>
+
+  <script src="/js/shared.js"></script>
+  <script>
+    let currentUnit = 'lbs';
+
+    function updateUnitLabel() {
+      currentUnit = document.getElementById('profile_unit').value;
+      document.getElementById('profile_unit_label').textContent = currentUnit;
+    }
+
+    function loadProfile() {
+      getProfile().then(data => {
+        if (!data) return;
+        document.getElementById('profile_first_name').value = data.first_name || '';
+        document.getElementById('profile_last_name').value = data.last_name || '';
+        document.getElementById('profile_age').value = data.age || '';
+        document.getElementById('profile_sex').value = data.sex || '';
+        document.getElementById('profile_unit').value = data.preferred_unit || 'lbs';
+        document.getElementById('profile_bodyweight').value = data.current_bodyweight || '';
+        currentUnit = data.preferred_unit || 'lbs';
+        updateUnitLabel();
+        loadBodyweightHistory();
+      });
+    }
+
+    function saveProfile() {
+      const first_name = document.getElementById('profile_first_name').value.trim();
+      const last_name = document.getElementById('profile_last_name').value.trim();
+      const age = parseInt(document.getElementById('profile_age').value);
+      const sex = document.getElementById('profile_sex').value;
+      const preferred_unit = document.getElementById('profile_unit').value;
+      const bodyweight = parseFloat(document.getElementById('profile_bodyweight').value);
+
+      if (!first_name || !last_name || !age || !sex || !bodyweight) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name, last_name, age, sex, preferred_unit, bodyweight })
+      })
+        .then(res => res.json())
+        .then(() => {
+          const box = document.getElementById('profile-success');
+          box.style.display = 'block';
+          setTimeout(() => box.style.display = 'none', 3000);
+          loadBodyweightHistory();
+        });
+    }
+
+    function loadBodyweightHistory() {
+      fetch('/api/profile/bodyweight-history')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('bodyweight-history');
+          tbody.innerHTML = '';
+          data.forEach(entry => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${formatDate(entry.recorded_at)}</td>
+              <td>${entry.bodyweight} ${currentUnit}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

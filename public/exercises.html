@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dad Wave - Exercises</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    input, select { padding: 6px; margin-right: 6px; margin-bottom: 6px; }
+    button { padding: 6px 12px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+    th { background: #f4f4f4; }
+    section { margin-bottom: 40px; }
+    h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
+    .form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .increment-note { font-size: 0.85em; color: #666; }
+    nav { margin-bottom: 30px; display: flex; gap: 12px; }
+    nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Dad Wave</h1>
+
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/exercises.html">Exercises</a>
+    <a href="/sessions.html">Sessions</a>
+    <a href="/profile.html">Profile</a>
+  </nav>
+
+  <section>
+    <h2>Add Exercise</h2>
+    <div class="form-row">
+      <input type="text" id="name" placeholder="Exercise name" />
+      <select id="equipment">
+        <option value="">-- Equipment --</option>
+        <option value="Barbell">Barbell</option>
+        <option value="Dumbbell">Dumbbell</option>
+        <option value="Machine">Machine</option>
+        <option value="Cable">Cable</option>
+        <option value="Bodyweight">Bodyweight</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="exercise_type" onchange="autoFillIncrement()">
+        <option value="">-- Type --</option>
+        <option value="Compound">Compound</option>
+        <option value="Isolation">Isolation</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input type="number" id="rep_min" placeholder="Rep min" style="width:80px" />
+      <input type="number" id="rep_max" placeholder="Rep max" style="width:80px" />
+      <input type="number" id="weight_increment" placeholder="Increment (lbs)" style="width:140px" />
+      <span class="increment-note">Auto-filled by type, override if needed</span>
+    </div>
+    <button onclick="addExercise()">Add Exercise</button>
+  </section>
+
+  <section>
+    <h2>Your Exercises</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Exercise</th>
+          <th>Equipment</th>
+          <th>Type</th>
+          <th>Rep Range</th>
+          <th>Increment</th>
+        </tr>
+      </thead>
+      <tbody id="exercise-list"></tbody>
+    </table>
+  </section>
+
+  <script src="/js/shared.js"></script>
+  <script>
+    function autoFillIncrement() {
+      const type = document.getElementById('exercise_type').value;
+      const incrementInput = document.getElementById('weight_increment');
+      if (type === 'Compound') incrementInput.value = 10;
+      else if (type === 'Isolation') incrementInput.value = 5;
+      else incrementInput.value = '';
+    }
+
+    function loadExercises() {
+      getExercises().then(data => {
+        const tbody = document.getElementById('exercise-list');
+        tbody.innerHTML = '';
+        data.forEach(ex => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${ex.name}</td>
+            <td>${ex.equipment}</td>
+            <td>${ex.exercise_type}</td>
+            <td>${ex.rep_range_min} - ${ex.rep_range_max}</td>
+            <td>${ex.weight_increment} lbs</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    function addExercise() {
+      const name = document.getElementById('name').value.trim();
+      const equipment = document.getElementById('equipment').value;
+      const exercise_type = document.getElementById('exercise_type').value;
+      const rep_range_min = parseInt(document.getElementById('rep_min').value);
+      const rep_range_max = parseInt(document.getElementById('rep_max').value);
+      const weight_increment = parseFloat(document.getElementById('weight_increment').value);
+
+      if (!name || !equipment || !exercise_type || !rep_range_min || !rep_range_max || !weight_increment) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      fetch('/api/exercises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, equipment, exercise_type, rep_range_min, rep_range_max, weight_increment })
+      })
+        .then(res => res.json())
+        .then(() => {
+          document.getElementById('name').value = '';
+          document.getElementById('equipment').value = '';
+          document.getElementById('exercise_type').value = '';
+          document.getElementById('rep_min').value = '';
+          document.getElementById('rep_max').value = '';
+          document.getElementById('weight_increment').value = '';
+          loadExercises();
+        });
+    }
+
+    loadExercises();
+  </script>
+</body>
+</html>

@@ -182,6 +182,19 @@ app.get('/api/profile/bodyweight-history', (req, res) => {
   res.json(history);
 });
 
+// API: dashboard summary stats
+app.get('/api/stats/summary', (req, res) => {
+  const total_sessions = db.prepare('SELECT COUNT(*) as count FROM sessions').get().count;
+  const total_volume = db.prepare('SELECT SUM(weight * reps) as volume FROM sessions').get().volume || 0;
+  const last_session = db.prepare('SELECT performed_at FROM sessions ORDER BY performed_at DESC LIMIT 1').get();
+
+  res.json({
+    total_sessions,
+    total_volume,
+    last_session: last_session ? last_session.performed_at : null
+  });
+});
+
 // ─── START SERVER ─────────────────────────────────────────────
 
 app.listen(PORT, () => {
