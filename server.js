@@ -1,3 +1,7 @@
+require('dotenv').config();
+const Anthropic = require('@anthropic-ai/sdk');
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
 const express = require('express');
 const Database = require('better-sqlite3');
 
