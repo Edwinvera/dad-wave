@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dad Wave - Workout</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    .nav {
+      background: #1a1a1a;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 56px;
+    }
+    .nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
+    .nav a { color: #aaa; text-decoration: none; font-size: 0.9em; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .nav a:hover { color: white; }
+    .nav a.active { color: white; border-bottom-color: white; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+
+    /* HEADER */
+    .workout-header {
+      background: white;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .workout-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .workout-date { font-size: 0.82em; color: #888; margin-bottom: 4px; }
+    .workout-title { font-size: 1.4em; font-weight: 700; }
+    .workout-subtitle { font-size: 0.9em; color: #666; margin-top: 4px; }
+    .header-actions { display: flex; gap: 8px; }
+
+    /* BUTTONS */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85em;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary { background: #1a1a1a; color: white; }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-danger { background: #fff0f0; color: #cc0000; border: 1px solid #ffcccc; }
+    .btn-danger:hover { background: #ffe0e0; }
+    .btn-ai { background: #6c47ff; color: white; font-size: 0.8em; padding: 5px 10px; }
+    .btn-ai:hover { background: #5535dd; }
+    .btn-sm { padding: 5px 10px; font-size: 0.8em; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 4px; color: #999; }
+    .btn-icon:hover { color: #333; }
+
+    /* EXERCISE CARDS */
+    .exercise-card {
+      background: white;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .exercise-card-header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .exercise-card-name { font-weight: 600; font-size: 0.95em; }
+    .exercise-card-meta { font-size: 0.78em; color: #888; margin-top: 2px; }
+    .exercise-card-actions { display: flex; gap: 6px; align-items: center; }
+
+    /* AI RECOMMENDATION */
+    .ai-recommendation {
+      display: none;
+      margin: 12px 18px;
+      padding: 12px 14px;
+      background: #f5f0ff;
+      border-left: 3px solid #6c47ff;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* SETS TABLE */
+    .sets-container { padding: 12px 18px; }
+    .sets-header {
+      display: grid;
+      grid-template-columns: 40px 1fr 1fr 1fr 32px;
+      gap: 8px;
+      font-size: 0.75em;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      padding: 0 4px;
+    }
+    .set-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 1fr 1fr 32px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .set-number {
+      font-size: 0.82em;
+      color: #999;
+      text-align: center;
+      font-weight: 600;
+    }
+    .set-input {
+      padding: 7px 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.88em;
+      width: 100%;
+      text-align: center;
+    }
+    .set-input:focus { outline: none; border-color: #1a1a1a; }
+    .set-notes-input {
+      padding: 7px 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.88em;
+      width: 100%;
+    }
+    .set-notes-input:focus { outline: none; border-color: #1a1a1a; }
+
+    .add-set-row {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ADD EXERCISE SECTION */
+    .add-exercise-section {
+      background: white;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-top: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .add-exercise-section h3 { font-size: 0.95em; margin-bottom: 12px; color: #555; }
+    .exercise-search {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .exercise-search input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+    }
+    .exercise-search input:focus { outline: none; border-color: #1a1a1a; }
+    .exercise-picker {
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 6px;
+    }
+    .exercise-picker-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.88em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .exercise-picker-item:hover { background: #f5f5f5; }
+    .exercise-picker-item:last-child { border-bottom: none; }
+    .picker-meta { font-size: 0.78em; color: #999; }
+
+    /* MODALS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 20px;
+    }
+    .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
+    .modal-field input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+    }
+    .modal-field input:focus { outline: none; border-color: #1a1a1a; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    .empty-exercises {
+      text-align: center;
+      color: #bbb;
+      padding: 32px 0;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <span class="logo">Dad Wave</span>
+    <a href="/index.html" class="active">History</a>
+    <a href="/exercises.html">Exercises</a>
+    <a href="/profile.html">Profile</a>
+    <a href="/settings.html">Settings</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Workout Header -->
+    <div class="workout-header" id="workout-header">
+      <div class="workout-header-top">
+        <div>
+          <div class="workout-date" id="workout-date"></div>
+          <div class="workout-title" id="workout-title"></div>
+          <div class="workout-subtitle" id="workout-subtitle"></div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openEditModal()">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteWorkout()">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercise Cards -->
+    <div id="exercise-cards">
+      <div class="empty-exercises">No exercises yet — add one below</div>
+    </div>
+
+    <!-- Add Exercise Section -->
+    <div class="add-exercise-section">
+      <h3>Add Exercise to Workout</h3>
+      <div class="exercise-search">
+        <input type="text" id="exercise-search" placeholder="Search exercises..." oninput="filterPicker()" />
+      </div>
+      <div class="exercise-picker" id="exercise-picker"></div>
+    </div>
+
+  </div>
+
+  <!-- Edit Workout Modal -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h2>Edit Workout</h2>
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="date" id="edit-date" />
+      </div>
+      <div class="modal-field">
+        <label>Title</label>
+        <input type="text" id="edit-title" />
+      </div>
+      <div class="modal-field">
+        <label>Subtitle (optional)</label>
+        <input type="text" id="edit-subtitle" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/shared.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const workoutId = params.get('id');
+    let workout = null;
+    let allExercises = [];
+
+    // ── INIT ──────────────────────────────────────────────────
+
+    async function init() {
+      if (!workoutId) { window.location.href = '/index.html'; return; }
+      await loadWorkout();
+      await loadAllExercises();
+      renderHeader();
+      renderExerciseCards();
+      renderExercisePicker();
+    }
+
+    async function loadWorkout() {
+      const res = await fetch(`/api/workouts/${workoutId}`);
+      workout = await res.json();
+    }
+
+    async function loadAllExercises() {
+      allExercises = await getExercises();
+    }
+
+    // ── HEADER ────────────────────────────────────────────────
+
+    function renderHeader() {
+      document.getElementById('workout-date').textContent = formatDate(workout.performed_at);
+      document.getElementById('workout-title').textContent = workout.title;
+      const sub = document.getElementById('workout-subtitle');
+      sub.textContent = workout.subtitle || '';
+      sub.style.display = workout.subtitle ? 'block' : 'none';
+    }
+
+    // ── EXERCISE CARDS ────────────────────────────────────────
+
+    function renderExerciseCards() {
+      const container = document.getElementById('exercise-cards');
+
+      if (!workout.exercises || workout.exercises.length === 0) {
+        container.innerHTML = '<div class="empty-exercises">No exercises yet — add one below</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      workout.exercises.forEach(ex => {
+        container.appendChild(buildExerciseCard(ex));
+      });
+    }
+
+    function buildExerciseCard(ex) {
+      const card = document.createElement('div');
+      card.className = 'exercise-card';
+      card.id = `ex-card-${ex.id}`;
+
+      card.innerHTML = `
+        <div class="exercise-card-header">
+          <div>
+            <div class="exercise-card-name">${ex.name}</div>
+            <div class="exercise-card-meta">${ex.equipment} · ${ex.exercise_type} · Target: ${ex.rep_range_min}–${ex.rep_range_max} reps</div>
+          </div>
+          <div class="exercise-card-actions">
+            <button class="btn btn-ai" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})">✨ Recommend</button>
+            <button class="btn btn-icon" onclick="removeExercise(${ex.id})" title="Remove exercise">✕</button>
+          </div>
+        </div>
+        <div class="ai-recommendation" id="ai-rec-${ex.id}"></div>
+        <div class="sets-container" id="sets-${ex.id}">
+          <div class="sets-header">
+            <span>Set</span>
+            <span>Weight</span>
+            <span>Reps</span>
+            <span>Notes</span>
+            <span></span>
+          </div>
+          ${buildSetRows(ex)}
+        </div>
+        <div style="padding: 0 18px 14px">
+          <button class="btn btn-secondary btn-sm" onclick="addSet(${ex.id}, ${ex.sets ? ex.sets.length : 0})">+ Add Set</button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function buildSetRows(ex) {
+      if (!ex.sets || ex.sets.length === 0) return '';
+      return ex.sets.map(s => buildSetRow(s, ex.id)).join('');
+    }
+
+    function buildSetRow(set, workoutExerciseId) {
+      return `
+        <div class="set-row" id="set-row-${set.id}">
+          <span class="set-number">${set.set_number}</span>
+          <input class="set-input" type="number" value="${set.weight}" placeholder="lbs"
+            onblur="updateSet(${set.id}, this)" data-field="weight" />
+          <input class="set-input" type="number" value="${set.reps}" placeholder="reps"
+            onblur="updateSet(${set.id}, this)" data-field="reps" />
+          <input class="set-notes-input" type="text" value="${set.notes || ''}" placeholder="notes"
+            onblur="updateSet(${set.id}, this)" data-field="notes" />
+          <button class="btn-icon" onclick="deleteSet(${set.id}, ${workoutExerciseId})">✕</button>
+        </div>
+      `;
+    }
+
+    // ── SETS ─────────────────────────────────────────────────
+
+    async function addSet(workoutExerciseId, currentSetCount) {
+      const res = await fetch('/api/sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workout_exercise_id: workoutExerciseId,
+          set_number: currentSetCount + 1,
+          weight: 0,
+          reps: 0,
+          notes: ''
+        })
+      });
+      const newSet = await res.json();
+
+      // Find the exercise in workout data and update set count
+      const ex = workout.exercises.find(e => e.id === workoutExerciseId);
+      if (ex) {
+        if (!ex.sets) ex.sets = [];
+        ex.sets.push(newSet);
+      }
+
+      // Inject the new row into the DOM directly
+      const setsContainer = document.getElementById(`sets-${workoutExerciseId}`);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = buildSetRow(newSet, workoutExerciseId);
+      setsContainer.appendChild(tempDiv.firstElementChild);
+
+      // Update add set button count
+      const addBtn = setsContainer.nextElementSibling.querySelector('button');
+      addBtn.setAttribute('onclick', `addSet(${workoutExerciseId}, ${ex.sets.length})`);
+    }
+
+    async function updateSet(setId, inputEl) {
+      const row = inputEl.closest('.set-row');
+      const weight = parseFloat(row.querySelector('[data-field="weight"]').value) || 0;
+      const reps = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
+      const notes = row.querySelector('[data-field="notes"]').value;
+
+      await fetch(`/api/sets/${setId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ weight, reps, notes })
+      });
+    }
+
+    async function deleteSet(setId, workoutExerciseId) {
+      await fetch(`/api/sets/${setId}`, { method: 'DELETE' });
+      document.getElementById(`set-row-${setId}`).remove();
+
+      // Renumber remaining sets in UI
+      const container = document.getElementById(`sets-${workoutExerciseId}`);
+      const rows = container.querySelectorAll('.set-row');
+      rows.forEach((row, i) => {
+        row.querySelector('.set-number').textContent = i + 1;
+      });
+
+      // Update add set button
+      const ex = workout.exercises.find(e => e.id === workoutExerciseId);
+      if (ex && ex.sets) {
+        ex.sets = ex.sets.filter(s => s.id !== setId);
+        const addBtn = container.nextElementSibling.querySelector('button');
+        addBtn.setAttribute('onclick', `addSet(${workoutExerciseId}, ${ex.sets.length})`);
+      }
+    }
+
+    // ── ADD / REMOVE EXERCISES ────────────────────────────────
+
+    function renderExercisePicker() {
+      filterPicker();
+    }
+
+    function filterPicker() {
+      const query = document.getElementById('exercise-search').value.toLowerCase();
+      const picker = document.getElementById('exercise-picker');
+      const addedIds = new Set(workout.exercises ? workout.exercises.map(e => e.exercise_id) : []);
+
+      const filtered = allExercises.filter(ex =>
+        ex.name.toLowerCase().includes(query) && !addedIds.has(ex.id)
+      );
+
+      if (filtered.length === 0) {
+        picker.innerHTML = '<div style="padding:12px; color:#999; font-size:0.85em; text-align:center">No exercises found</div>';
+        return;
+      }
+
+      picker.innerHTML = '';
+      filtered.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'exercise-picker-item';
+        item.innerHTML = `
+          <span>${ex.name}</span>
+          <span class="picker-meta">${ex.equipment} · ${ex.exercise_type}</span>
+        `;
+        item.onclick = () => addExerciseToWorkout(ex.id);
+        picker.appendChild(item);
+      });
+    }
+
+    async function addExerciseToWorkout(exerciseId) {
+      const orderIndex = workout.exercises ? workout.exercises.length : 0;
+
+      const res = await fetch(`/api/workouts/${workoutId}/exercises`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercise_id: exerciseId, order_index: orderIndex })
+      });
+
+      const workoutExercise = await res.json();
+
+      // Find exercise details
+      const exerciseDetails = allExercises.find(e => e.id === exerciseId);
+      const newEx = {
+        ...workoutExercise,
+        ...exerciseDetails,
+        exercise_id: exerciseId,
+        sets: []
+      };
+
+      if (!workout.exercises) workout.exercises = [];
+      workout.exercises.push(newEx);
+
+      // Remove empty state if present
+      const container = document.getElementById('exercise-cards');
+      const emptyState = container.querySelector('.empty-exercises');
+      if (emptyState) emptyState.remove();
+
+      container.appendChild(buildExerciseCard(newEx));
+      filterPicker();
+
+      // Clear search
+      document.getElementById('exercise-search').value = '';
+    }
+
+    async function removeExercise(workoutExerciseId) {
+      if (!confirm('Remove this exercise from the workout?')) return;
+      await fetch(`/api/workout-exercises/${workoutExerciseId}`, { method: 'DELETE' });
+      workout.exercises = workout.exercises.filter(e => e.id !== workoutExerciseId);
+      document.getElementById(`ex-card-${workoutExerciseId}`).remove();
+      if (workout.exercises.length === 0) {
+        document.getElementById('exercise-cards').innerHTML =
+          '<div class="empty-exercises">No exercises yet — add one below</div>';
+      }
+      filterPicker();
+    }
+
+    // ── AI RECOMMENDATION ─────────────────────────────────────
+
+    async function getRecommendation(exerciseId, workoutExerciseId) {
+      const box = document.getElementById(`ai-rec-${workoutExerciseId}`);
+      box.style.display = 'block';
+      box.textContent = '✨ Getting recommendation...';
+
+      const res = await fetch('/api/ai/recommendation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercise_id: exerciseId, workout_exercise_id: workoutExerciseId })
+      });
+
+      const data = await res.json();
+      box.textContent = data.message;
+    }
+
+    // ── EDIT WORKOUT ──────────────────────────────────────────
+
+    function openEditModal() {
+      document.getElementById('edit-date').value = workout.performed_at.slice(0, 10);
+      document.getElementById('edit-title').value = workout.title;
+      document.getElementById('edit-subtitle').value = workout.subtitle || '';
+      document.getElementById('edit-modal').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('open');
+    }
+
+    async function saveEdit() {
+      const performed_at = document.getElementById('edit-date').value;
+      const title = document.getElementById('edit-title').value.trim();
+      const subtitle = document.getElementById('edit-subtitle').value.trim();
+
+      if (!performed_at || !title) { alert('Date and title are required'); return; }
+
+      await fetch(`/api/workouts/${workoutId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, subtitle, performed_at })
+      });
+
+      workout.title = title;
+      workout.subtitle = subtitle;
+      workout.performed_at = performed_at;
+      closeEditModal();
+      renderHeader();
+    }
+
+    // ── DELETE WORKOUT ────────────────────────────────────────
+
+    async function deleteWorkout() {
+      if (!confirm('Delete this entire workout? This cannot be undone.')) return;
+      await fetch(`/api/workouts/${workoutId}`, { method: 'DELETE' });
+      window.location.href = '/index.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

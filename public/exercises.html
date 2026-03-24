@@ -4,101 +4,359 @@
   <meta charset="UTF-8">
   <title>Dad Wave - Exercises</title>
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    input, select { padding: 6px; margin-right: 6px; margin-bottom: 6px; }
-    button { padding: 6px 12px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-    th { background: #f4f4f4; }
-    section { margin-bottom: 40px; }
-    h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
-    .form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
-    .increment-note { font-size: 0.85em; color: #666; }
-    nav { margin-bottom: 30px; display: flex; gap: 12px; }
-    nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
-    nav a:hover { text-decoration: underline; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .nav {
+      background: #1a1a1a;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 56px;
+    }
+    .nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
+    .nav a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 0.9em;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+    }
+    .nav a:hover { color: white; }
+    .nav a.active { color: white; border-bottom-color: white; }
+
+    /* LAYOUT */
+    .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 1.6em; margin-bottom: 24px; }
+    h2 { font-size: 1.1em; margin-bottom: 16px; color: #333; }
+
+    /* ADD EXERCISE CARD */
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"], input[type="number"], select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+      background: white;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: #1a1a1a;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9em;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary { background: #1a1a1a; color: white; }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-ai { background: #6c47ff; color: white; }
+    .btn-ai:hover { background: #5535dd; }
+    .btn-ai:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-danger { background: #fff0f0; color: #cc0000; }
+    .btn-danger:hover { background: #ffe0e0; }
+
+    /* VARIATIONS BOX */
+    .variations-box {
+      display: none;
+      background: #f9f9ff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .variations-box h3 { font-size: 0.95em; margin-bottom: 12px; color: #555; }
+    .variation-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .variation-option:hover { border-color: #6c47ff; background: #f9f9ff; }
+    .var-name { font-weight: 600; font-size: 0.9em; }
+    .var-detail { font-size: 0.8em; color: #666; margin-top: 2px; }
+    .var-reasoning { font-size: 0.78em; color: #888; font-style: italic; margin-top: 2px; }
+
+    .reasoning-note {
+      font-size: 0.82em;
+      color: #6c47ff;
+      font-style: italic;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    /* FILTERS */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: white;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: #999; }
+    .filter-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
+    /* EXERCISE LIST */
+    .exercise-item {
+      background: white;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .exercise-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .exercise-name { font-weight: 600; font-size: 0.95em; }
+    .exercise-meta { font-size: 0.8em; color: #666; margin-top: 3px; }
+    .exercise-badge {
+      font-size: 0.75em;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #f0f0f0;
+      color: #555;
+      margin-left: 8px;
+    }
+    .exercise-actions { display: flex; gap: 8px; align-items: center; }
+    .empty-state { text-align: center; color: #999; padding: 40px 0; font-size: 0.9em; }
   </style>
 </head>
 <body>
-  <h1>Dad Wave</h1>
 
-  <nav>
-    <a href="/">Dashboard</a>
-    <a href="/exercises.html">Exercises</a>
-    <a href="/sessions.html">Sessions</a>
+  <nav class="nav">
+    <span class="logo">Dad Wave</span>
+    <a href="/index.html">History</a>
+    <a href="/exercises.html" class="active">Exercises</a>
     <a href="/profile.html">Profile</a>
+    <a href="/settings.html">Settings</a>
   </nav>
 
-  <section>
-    <h2>Add Exercise</h2>
-    <div class="form-row">
-      <input type="text" id="name" placeholder="Exercise name" />
-      <select id="equipment">
-        <option value="">-- Equipment --</option>
-        <option value="Barbell">Barbell</option>
-        <option value="Dumbbell">Dumbbell</option>
-        <option value="Machine">Machine</option>
-        <option value="Cable">Cable</option>
-        <option value="Bodyweight">Bodyweight</option>
-        <option value="Other">Other</option>
-      </select>
-      <select id="exercise_type" onchange="autoFillIncrement()">
-        <option value="">-- Type --</option>
-        <option value="Compound">Compound</option>
-        <option value="Isolation">Isolation</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <input type="number" id="rep_min" placeholder="Rep min" style="width:80px" />
-      <input type="number" id="rep_max" placeholder="Rep max" style="width:80px" />
-      <input type="number" id="weight_increment" placeholder="Increment (lbs)" style="width:140px" />
-      <span class="increment-note">Auto-filled by type, override if needed</span>
-    </div>
-    <button onclick="addExercise()">Add Exercise</button>
-  </section>
+  <div class="container">
+    <h1>Exercises</h1>
 
-  <section>
-    <h2>Your Exercises</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Exercise</th>
-          <th>Equipment</th>
-          <th>Type</th>
-          <th>Rep Range</th>
-          <th>Increment</th>
-        </tr>
-      </thead>
-      <tbody id="exercise-list"></tbody>
-    </table>
-  </section>
+    <!-- Add Exercise Card -->
+    <div class="card">
+      <h2>Add Exercise</h2>
+      <div class="input-row">
+        <input type="text" id="name" placeholder="Exercise name" style="flex:1; min-width:180px" />
+        <button class="btn btn-ai" id="classify-btn" onclick="classifyExercise()">✨ Auto Classify</button>
+      </div>
+
+      <div class="variations-box" id="variations-box">
+        <h3>Multiple variations found — which one did you mean?</h3>
+        <div id="variations-list"></div>
+      </div>
+
+      <div class="reasoning-note" id="classify-reasoning"></div>
+
+      <div class="input-row">
+        <select id="equipment" style="flex:1">
+          <option value="">-- Equipment --</option>
+          <option value="Barbell">Barbell</option>
+          <option value="Dumbbell">Dumbbell</option>
+          <option value="Machine">Machine</option>
+          <option value="Cable">Cable</option>
+          <option value="Bodyweight">Bodyweight</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="exercise_type" style="flex:1">
+          <option value="">-- Type --</option>
+          <option value="Compound">Compound</option>
+          <option value="Isolation">Isolation</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <input type="number" id="rep_min" placeholder="Rep min" style="width:100px" />
+        <input type="number" id="rep_max" placeholder="Rep max" style="width:100px" />
+        <input type="number" id="weight_increment" placeholder="Increment (lbs)" style="width:150px" />
+      </div>
+      <button class="btn btn-primary" onclick="addExercise()">Add Exercise</button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filters" id="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('Barbell', this)">Barbell</button>
+      <button class="filter-btn" onclick="setFilter('Dumbbell', this)">Dumbbell</button>
+      <button class="filter-btn" onclick="setFilter('Machine', this)">Machine</button>
+      <button class="filter-btn" onclick="setFilter('Cable', this)">Cable</button>
+      <button class="filter-btn" onclick="setFilter('Bodyweight', this)">Bodyweight</button>
+      <button class="filter-btn" onclick="setFilter('Other', this)">Other</button>
+    </div>
+
+    <!-- Exercise List -->
+    <div id="exercise-list"></div>
+  </div>
 
   <script src="/js/shared.js"></script>
   <script>
-    function autoFillIncrement() {
-      const type = document.getElementById('exercise_type').value;
-      const incrementInput = document.getElementById('weight_increment');
-      if (type === 'Compound') incrementInput.value = 10;
-      else if (type === 'Isolation') incrementInput.value = 5;
-      else incrementInput.value = '';
+    let allExercises = [];
+    let activeFilter = 'All';
+
+    function setFilter(filter, btn) {
+      activeFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderExercises();
+    }
+
+    function renderExercises() {
+      const list = document.getElementById('exercise-list');
+      const filtered = activeFilter === 'All'
+        ? allExercises
+        : allExercises.filter(ex => ex.equipment === activeFilter);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state">No exercises found. Add one above!</div>';
+        return;
+      }
+
+      list.innerHTML = '';
+      filtered.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = 'exercise-item';
+        div.innerHTML = `
+          <div>
+            <div class="exercise-name">${ex.name}</div>
+            <div class="exercise-meta">
+              ${ex.equipment} · ${ex.exercise_type} · ${ex.rep_range_min}–${ex.rep_range_max} reps · +${ex.weight_increment} lbs
+            </div>
+          </div>
+          <div class="exercise-actions">
+            <span class="exercise-badge">${ex.exercise_type}</span>
+            <button class="btn btn-danger" onclick="deleteExercise(${ex.id}, event)">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
     }
 
     function loadExercises() {
       getExercises().then(data => {
-        const tbody = document.getElementById('exercise-list');
-        tbody.innerHTML = '';
-        data.forEach(ex => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${ex.name}</td>
-            <td>${ex.equipment}</td>
-            <td>${ex.exercise_type}</td>
-            <td>${ex.rep_range_min} - ${ex.rep_range_max}</td>
-            <td>${ex.weight_increment} lbs</td>
-          `;
-          tbody.appendChild(row);
-        });
+        allExercises = data;
+        renderExercises();
       });
+    }
+
+    function deleteExercise(id, event) {
+      event.stopPropagation();
+      if (!confirm('Delete this exercise? This cannot be undone.')) return;
+      fetch(`/api/exercises/${id}`, { method: 'DELETE' })
+        .then(() => loadExercises());
+    }
+
+    function fillForm(data) {
+      document.getElementById('name').value = data.name;
+      document.getElementById('equipment').value = data.equipment;
+      document.getElementById('exercise_type').value = data.exercise_type;
+      document.getElementById('rep_min').value = data.rep_range_min;
+      document.getElementById('rep_max').value = data.rep_range_max;
+      document.getElementById('weight_increment').value = data.weight_increment;
+      const r = document.getElementById('classify-reasoning');
+      r.style.display = 'block';
+      r.textContent = '✨ ' + data.reasoning;
+    }
+
+    function classifyExercise() {
+      const name = document.getElementById('name').value.trim();
+      if (!name) { alert('Please enter an exercise name first'); return; }
+
+      const btn = document.getElementById('classify-btn');
+      btn.textContent = 'Classifying...';
+      btn.disabled = true;
+      document.getElementById('variations-box').style.display = 'none';
+      document.getElementById('classify-reasoning').style.display = 'none';
+
+      fetch('/api/ai/classify-exercise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      })
+        .then(res => res.json())
+        .then(data => {
+          btn.textContent = '✨ Auto Classify';
+          btn.disabled = false;
+
+          if (data.error) { alert('Classification failed, please fill in manually'); return; }
+
+          if (data.status === 'clear') {
+            fillForm(data);
+          } else if (data.status === 'ambiguous') {
+            const box = document.getElementById('variations-box');
+            const list = document.getElementById('variations-list');
+            list.innerHTML = '';
+            data.variations.forEach(v => {
+              const div = document.createElement('div');
+              div.className = 'variation-option';
+              div.innerHTML = `
+                <div>
+                  <div class="var-name">${v.name}</div>
+                  <div class="var-detail">${v.equipment} · ${v.exercise_type} · ${v.rep_range_min}–${v.rep_range_max} reps</div>
+                  <div class="var-reasoning">${v.reasoning}</div>
+                </div>
+                <button class="btn btn-secondary" onclick='selectVariation(${JSON.stringify(v)})'>Select</button>
+              `;
+              list.appendChild(div);
+            });
+            box.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          alert('Classification failed, please fill in manually');
+          btn.textContent = '✨ Auto Classify';
+          btn.disabled = false;
+        });
+    }
+
+    function selectVariation(variation) {
+      document.getElementById('variations-box').style.display = 'none';
+      fillForm(variation);
     }
 
     function addExercise() {
@@ -110,7 +368,7 @@
       const weight_increment = parseFloat(document.getElementById('weight_increment').value);
 
       if (!name || !equipment || !exercise_type || !rep_range_min || !rep_range_max || !weight_increment) {
-        alert('Please fill in all fields');
+        alert('Please fill in all fields or use Auto Classify');
         return;
       }
 
@@ -127,6 +385,8 @@
           document.getElementById('rep_min').value = '';
           document.getElementById('rep_max').value = '';
           document.getElementById('weight_increment').value = '';
+          document.getElementById('classify-reasoning').style.display = 'none';
+          document.getElementById('variations-box').style.display = 'none';
           loadExercises();
         });
     }

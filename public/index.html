@@ -2,75 +2,399 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dad Wave</title>
+  <title>Dad Wave - History</title>
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    nav { margin-bottom: 30px; display: flex; gap: 12px; }
-    nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
-    nav a:hover { text-decoration: underline; }
-    .welcome { font-size: 1.2em; margin-bottom: 30px; }
-    .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
-    .card { flex: 1; min-width: 150px; background: #f4f4f4; border-radius: 8px; padding: 20px; text-align: center; }
-    .card h3 { margin: 0 0 8px 0; font-size: 0.9em; color: #666; text-transform: uppercase; }
-    .card p { margin: 0; font-size: 2em; font-weight: bold; }
-    .quick-links { display: flex; gap: 16px; flex-wrap: wrap; }
-    .quick-links a { display: block; padding: 14px 24px; background: #333; color: white; border-radius: 6px; text-decoration: none; font-weight: bold; }
-    .quick-links a:hover { background: #555; }
-    h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    .nav {
+      background: #1a1a1a;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 56px;
+    }
+    .nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
+    .nav a { color: #aaa; text-decoration: none; font-size: 0.9em; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .nav a:hover { color: white; }
+    .nav a.active { color: white; border-bottom-color: white; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+
+    /* PAGE HEADER */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    h1 { font-size: 1.6em; }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9em;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary { background: #1a1a1a; color: white; }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-ghost { background: none; color: #555; border: none; cursor: pointer; font-size: 0.9em; padding: 4px 8px; }
+    .btn-ghost:hover { color: #000; }
+
+    /* TIME NAV */
+    .time-nav {
+      background: white;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .time-nav-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .time-nav-row:last-child { margin-bottom: 0; }
+    .time-label { font-size: 0.8em; color: #888; width: 48px; flex-shrink: 0; }
+    .time-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .time-btn {
+      padding: 4px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 16px;
+      background: white;
+      font-size: 0.82em;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #444;
+    }
+    .time-btn:hover { border-color: #999; }
+    .time-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+    .time-btn.has-data { border-color: #aaa; font-weight: 500; }
+
+    /* WORKOUT CARDS */
+    .workout-card {
+      background: white;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .workout-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+    .workout-date { font-size: 0.8em; color: #888; margin-bottom: 4px; }
+    .workout-title { font-weight: 600; font-size: 1em; }
+    .workout-subtitle { font-size: 0.85em; color: #666; margin-top: 3px; }
+    .workout-arrow { color: #ccc; font-size: 1.2em; }
+
+    .empty-state { text-align: center; color: #999; padding: 60px 0; font-size: 0.9em; }
+    .empty-state p { margin-bottom: 16px; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 20px;
+    }
+    .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
+    .modal-field input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+    }
+    .modal-field input:focus { outline: none; border-color: #1a1a1a; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>Dad Wave</h1>
 
-  <nav>
-    <a href="/">Dashboard</a>
+  <nav class="nav">
+    <span class="logo">Dad Wave</span>
+    <a href="/index.html" class="active">History</a>
     <a href="/exercises.html">Exercises</a>
-    <a href="/sessions.html">Sessions</a>
     <a href="/profile.html">Profile</a>
+    <a href="/settings.html">Settings</a>
   </nav>
 
-  <p class="welcome" id="welcome-msg">Welcome back!</p>
+  <div class="container">
+    <div class="page-header">
+      <h1>History</h1>
+      <button class="btn btn-primary" onclick="openAddWorkout()">+ Add Workout</button>
+    </div>
 
-  <h2>Quick Stats</h2>
-  <div class="cards">
-    <div class="card">
-      <h3>Total Sessions</h3>
-      <p id="stat-sessions">-</p>
+    <!-- Time Navigation -->
+    <div class="time-nav">
+      <div class="time-nav-row">
+        <span class="time-label">Year</span>
+        <div class="time-options" id="year-options"></div>
+      </div>
+      <div class="time-nav-row">
+        <span class="time-label">Month</span>
+        <div class="time-options" id="month-options"></div>
+      </div>
+      <div class="time-nav-row">
+        <span class="time-label">Day</span>
+        <div class="time-options" id="day-options"></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>Total Volume</h3>
-      <p id="stat-volume">-</p>
-    </div>
-    <div class="card">
-      <h3>Last Session</h3>
-      <p id="stat-last" style="font-size:1em">-</p>
-    </div>
+
+    <!-- Workout List -->
+    <div id="workout-list"></div>
   </div>
 
-  <h2>Quick Links</h2>
-  <div class="quick-links">
-    <a href="/exercises.html">Manage Exercises</a>
-    <a href="/sessions.html">Log a Session</a>
-    <a href="/profile.html">My Profile</a>
+  <!-- Add Workout Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <h2>New Workout</h2>
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="date" id="workout-date" />
+      </div>
+      <div class="modal-field">
+        <label>Title</label>
+        <input type="text" id="workout-title" placeholder="e.g. Upper Body A" />
+      </div>
+      <div class="modal-field">
+        <label>Subtitle (optional)</label>
+        <input type="text" id="workout-subtitle" placeholder="e.g. Heavy Day" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeAddWorkout()">Cancel</button>
+        <button class="btn btn-primary" onclick="createWorkout()">Create</button>
+      </div>
+    </div>
   </div>
 
   <script src="/js/shared.js"></script>
   <script>
-    // Load welcome message from profile
-    getProfile().then(data => {
-      if (data && data.first_name) {
-        document.getElementById('welcome-msg').textContent = `Welcome back, ${data.first_name}!`;
-      }
-    });
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let selectedYear = new Date().getFullYear().toString();
+    let selectedMonth = null;
+    let selectedDay = null;
+    let allWorkouts = [];
 
-    // Load quick stats
-    fetch('/api/stats/summary')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('stat-sessions').textContent = data.total_sessions;
-        document.getElementById('stat-volume').textContent = data.total_volume.toLocaleString() + ' lbs';
-        document.getElementById('stat-last').textContent = data.last_session ? formatDate(data.last_session) : 'None yet';
+    // ── INIT ──────────────────────────────────────────────────
+
+    async function init() {
+      await loadWorkouts();
+      buildYearNav();
+      buildMonthNav();
+      renderWorkouts();
+    }
+
+    async function loadWorkouts() {
+      const res = await fetch('/api/workouts');
+      allWorkouts = await res.json();
+    }
+
+    // ── NAV BUILDERS ─────────────────────────────────────────
+
+    function buildYearNav() {
+      const years = [...new Set(allWorkouts.map(w => w.performed_at.slice(0, 4)))];
+      const currentYear = new Date().getFullYear().toString();
+      if (!years.includes(currentYear)) years.push(currentYear);
+      years.sort((a, b) => b - a);
+
+      const container = document.getElementById('year-options');
+      container.innerHTML = '';
+      years.forEach(y => {
+        const btn = document.createElement('button');
+        btn.className = 'time-btn' + (y === selectedYear ? ' active' : '');
+        btn.textContent = y;
+        btn.onclick = () => selectYear(y);
+        container.appendChild(btn);
       });
+    }
+
+    function buildMonthNav() {
+      const monthsWithData = new Set(
+        allWorkouts
+          .filter(w => w.performed_at.startsWith(selectedYear))
+          .map(w => w.performed_at.slice(5, 7))
+      );
+
+      const container = document.getElementById('month-options');
+      container.innerHTML = '';
+
+      // All option
+      const allBtn = document.createElement('button');
+      allBtn.className = 'time-btn' + (!selectedMonth ? ' active' : '');
+      allBtn.textContent = 'All';
+      allBtn.onclick = () => selectMonth(null);
+      container.appendChild(allBtn);
+
+      MONTHS.forEach((name, i) => {
+        const m = (i + 1).toString().padStart(2, '0');
+        const btn = document.createElement('button');
+        btn.className = 'time-btn' + (m === selectedMonth ? ' active' : '') + (monthsWithData.has(m) ? ' has-data' : '');
+        btn.textContent = name;
+        btn.onclick = () => selectMonth(m);
+        container.appendChild(btn);
+      });
+    }
+
+    function buildDayNav() {
+      const container = document.getElementById('day-options');
+      container.innerHTML = '';
+
+      if (!selectedMonth) return;
+
+      const daysWithData = allWorkouts
+        .filter(w => w.performed_at.startsWith(`${selectedYear}-${selectedMonth}`))
+        .map(w => w.performed_at.slice(8, 10));
+
+      if (daysWithData.length === 0) return;
+
+      const allBtn = document.createElement('button');
+      allBtn.className = 'time-btn' + (!selectedDay ? ' active' : '');
+      allBtn.textContent = 'All';
+      allBtn.onclick = () => selectDay(null);
+      container.appendChild(allBtn);
+
+      [...new Set(daysWithData)].sort().forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = 'time-btn has-data' + (d === selectedDay ? ' active' : '');
+        btn.textContent = parseInt(d);
+        btn.onclick = () => selectDay(d);
+        container.appendChild(btn);
+      });
+    }
+
+    // ── SELECTION HANDLERS ────────────────────────────────────
+
+    function selectYear(y) {
+      selectedYear = y;
+      selectedMonth = null;
+      selectedDay = null;
+      buildYearNav();
+      buildMonthNav();
+      buildDayNav();
+      renderWorkouts();
+    }
+
+    function selectMonth(m) {
+      selectedMonth = m;
+      selectedDay = null;
+      buildMonthNav();
+      buildDayNav();
+      renderWorkouts();
+    }
+
+    function selectDay(d) {
+      selectedDay = d;
+      buildDayNav();
+      renderWorkouts();
+    }
+
+    // ── RENDER ────────────────────────────────────────────────
+
+    function renderWorkouts() {
+      let filtered = allWorkouts.filter(w => w.performed_at.startsWith(selectedYear));
+      if (selectedMonth) filtered = filtered.filter(w => w.performed_at.slice(5, 7) === selectedMonth);
+      if (selectedDay) filtered = filtered.filter(w => w.performed_at.slice(8, 10) === selectedDay);
+
+      const list = document.getElementById('workout-list');
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <p>No workouts found for this period.</p>
+            <button class="btn btn-primary" onclick="openAddWorkout()">+ Add Workout</button>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      filtered.forEach(w => {
+        const card = document.createElement('div');
+        card.className = 'workout-card';
+        card.onclick = () => window.location.href = `/workout.html?id=${w.id}`;
+        card.innerHTML = `
+          <div>
+            <div class="workout-date">${formatDate(w.performed_at)}</div>
+            <div class="workout-title">${w.title}</div>
+            ${w.subtitle ? `<div class="workout-subtitle">${w.subtitle}</div>` : ''}
+          </div>
+          <span class="workout-arrow">›</span>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // ── ADD WORKOUT MODAL ─────────────────────────────────────
+
+    function openAddWorkout() {
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('workout-date').value = today;
+      document.getElementById('workout-title').value = '';
+      document.getElementById('workout-subtitle').value = '';
+      document.getElementById('add-modal').classList.add('open');
+    }
+
+    function closeAddWorkout() {
+      document.getElementById('add-modal').classList.remove('open');
+    }
+
+    async function createWorkout() {
+      const performed_at = document.getElementById('workout-date').value;
+      const title = document.getElementById('workout-title').value.trim();
+      const subtitle = document.getElementById('workout-subtitle').value.trim();
+
+      if (!performed_at || !title) {
+        alert('Please enter a date and title');
+        return;
+      }
+
+      const res = await fetch('/api/workouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, subtitle, performed_at })
+      });
+
+      const workout = await res.json();
+
+      if (workout.error) {
+        alert(workout.error);
+        return;
+      }
+
+      closeAddWorkout();
+      window.location.href = `/workout.html?id=${workout.id}`;
+    }
+
+    init();
   </script>
 </body>
 </html>
