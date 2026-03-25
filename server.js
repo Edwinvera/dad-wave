@@ -114,7 +114,14 @@ app.get('/api/workouts', (req, res) => {
 
   query += ' ORDER BY performed_at DESC';
   const workouts = db.prepare(query).all(...params);
-  res.json(workouts);
+
+  // Normalize dates to YYYY-MM-DD to avoid timezone shifting on the frontend
+  const normalized = workouts.map(w => ({
+    ...w,
+    performed_at: w.performed_at.slice(0, 10)
+  }));
+
+  res.json(normalized);
 });
 
 // Get a single workout with all exercises and sets
@@ -433,6 +440,19 @@ app.get('/api/stats/summary', (req, res) => {
   const total_volume = db.prepare('SELECT SUM(weight * reps) as volume FROM sets').get().volume || 0;
   const last_workout = db.prepare('SELECT performed_at FROM workouts ORDER BY performed_at DESC LIMIT 1').get();
   res.json({ total_workouts, total_volume, last_workout: last_workout ? last_workout.performed_at : null });
+});
+
+// API: reorder exercises within a workout
+app.put('/api/workouts/:workout_id/reorder', (req, res) => {
+  const { exercises } = req.body;
+  const updateOrder = db.prepare(
+    'UPDATE workout_exercises SET order_index = ? WHERE id = ?'
+  );
+  const updateMany = db.transaction((exercises) => {
+    exercises.forEach(ex => updateOrder.run(ex.order_index, ex.id));
+  });
+  updateMany(exercises);
+  res.json({ success: true });
 });
 
 // ─── START SERVER ─────────────────────────────────────────────

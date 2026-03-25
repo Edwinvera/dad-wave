@@ -1,0 +1,201 @@
+/* ── BASE ───────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── NAV ────────────────────────────────────────────────────── */
+.nav {
+  background: #1a1a1a;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+}
+.nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
+.nav a { color: #aaa; text-decoration: none; font-size: 0.9em; padding: 4px 0; border-bottom: 2px solid transparent; }
+.nav a:hover { color: white; }
+.nav a.active { color: white; border-bottom-color: white; }
+
+/* ── CARD ───────────────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── BUTTONS ────────────────────────────────────────────────── */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-primary { background: #1a1a1a; color: white; }
+.btn-primary:hover { background: #333; }
+.btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+.btn-secondary:hover { background: #e0e0e0; }
+.btn-danger { background: #fff0f0; color: #cc0000; border: 1px solid #ffcccc; }
+.btn-danger:hover { background: #ffe0e0; }
+.btn-ai { background: #6c47ff; color: white; }
+.btn-ai:hover { background: #5535dd; }
+.btn-ai:disabled { background: #aaa; cursor: not-allowed; }
+.btn-sm { padding: 5px 10px; font-size: 0.8em; }
+.btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 4px; color: #999; }
+.btn-icon:hover { color: #333; }
+
+/* ── INPUTS ─────────────────────────────────────────────────── */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9em;
+  background: white;
+  color: #1a1a1a;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+/* ── DARK MODE ──────────────────────────────────────────────── */
+body.dark {
+  background: #111;
+  color: #f0f0f0;
+}
+
+body.dark .nav { background: #000; }
+
+body.dark .card {
+  background: #1e1e1e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+body.dark input[type="text"],
+body.dark input[type="number"],
+body.dark input[type="date"],
+body.dark select,
+body.dark textarea {
+  background: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444;
+}
+
+body.dark input:focus,
+body.dark select:focus {
+  border-color: #888;
+}
+
+body.dark .btn-secondary {
+  background: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444;
+}
+body.dark .btn-secondary:hover { background: #333; }
+
+body.dark .btn-icon { color: #888; }
+body.dark .btn-icon:hover { color: #f0f0f0; }
+
+body.dark .workout-card {
+  background: #1e1e1e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+body.dark .workout-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+body.dark .workout-date { color: #888; }
+body.dark .workout-subtitle { color: #aaa; }
+body.dark .workout-arrow { color: #555; }
+
+body.dark .exercise-card { background: #1e1e1e; }
+body.dark .exercise-card-header { border-bottom-color: #2a2a2a; }
+body.dark .exercise-card-meta { color: #888; }
+
+body.dark .set-input,
+body.dark .set-notes-input {
+  background: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444;
+}
+
+body.dark .exercise-item { background: #1e1e1e; }
+body.dark .exercise-meta { color: #888; }
+body.dark .exercise-badge { background: #2a2a2a; color: #aaa; }
+
+body.dark .filter-btn { background: #1e1e1e; border-color: #444; color: #ccc; }
+body.dark .filter-btn.active { background: #f0f0f0; color: #1a1a1a; border-color: #f0f0f0; }
+
+body.dark .time-nav { background: #1e1e1e; }
+body.dark .time-btn { background: #2a2a2a; border-color: #444; color: #ccc; }
+body.dark .time-btn.active { background: #f0f0f0; color: #1a1a1a; border-color: #f0f0f0; }
+
+body.dark .modal { background: #1e1e1e; color: #f0f0f0; }
+body.dark .modal-field label { color: #aaa; }
+
+body.dark .add-exercise-section { background: #1e1e1e; }
+body.dark .exercise-picker { border-color: #333; }
+body.dark .exercise-picker-item { border-bottom-color: #2a2a2a; color: #f0f0f0; }
+body.dark .exercise-picker-item:hover { background: #2a2a2a; }
+body.dark .picker-meta { color: #888; }
+
+body.dark .sets-header { color: #666; }
+body.dark .set-number { color: #666; }
+
+body.dark .setting-row { border-bottom-color: #2a2a2a; }
+body.dark .setting-desc { color: #888; }
+body.dark .setting-select { background: #2a2a2a; color: #f0f0f0; border-color: #444; }
+
+body.dark .bw-entry { border-bottom-color: #2a2a2a; }
+body.dark .bw-date { color: #888; }
+
+body.dark .empty-state,
+body.dark .empty-exercises { color: #555; }
+
+body.dark .ai-recommendation {
+  background: #1a1533;
+  border-left-color: #6c47ff;
+  color: #ddd;
+}
+
+body.dark .variations-box { background: #1e1e1e; border-color: #333; }
+body.dark .variation-option { background: #2a2a2a; border-color: #444; color: #f0f0f0; }
+body.dark .variation-option:hover { background: #333; border-color: #6c47ff; }
+body.dark .var-detail { color: #888; }
+body.dark .var-reasoning { color: #666; }
+
+body.dark .drag-handle { color: #555; }
+body.dark .drag-handle:hover { color: #aaa; }
+
+/* ── DRAG AND DROP ──────────────────────────────────────────── */
+.exercise-card {
+  transition: opacity 0.15s, transform 0.15s;
+  cursor: default;
+}
+.exercise-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+.exercise-card.drag-over {
+  border: 2px dashed #6c47ff;
+}
+.drag-handle {
+  cursor: grab;
+  color: #ccc;
+  font-size: 1.2em;
+  padding: 0 6px;
+  user-select: none;
+}
+.drag-handle:hover { color: #666; }
+.drag-handle:active { cursor: grabbing; }

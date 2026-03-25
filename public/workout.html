@@ -2,235 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="/css/shared.css">
   <title>Dad Wave - Workout</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f5;
-      color: #1a1a1a;
-      min-height: 100vh;
-    }
+  .workout-header {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .workout-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .workout-date { font-size: 0.82em; color: #888; margin-bottom: 4px; }
+  .workout-title { font-size: 1.4em; font-weight: 700; }
+  .workout-subtitle { font-size: 0.9em; color: #666; margin-top: 4px; }
+  .header-actions { display: flex; gap: 8px; }
 
-    .nav {
-      background: #1a1a1a;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      height: 56px;
-    }
-    .nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
-    .nav a { color: #aaa; text-decoration: none; font-size: 0.9em; padding: 4px 0; border-bottom: 2px solid transparent; }
-    .nav a:hover { color: white; }
-    .nav a.active { color: white; border-bottom-color: white; }
+  .exercise-card {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .exercise-card-header {
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .exercise-card-name { font-weight: 600; font-size: 0.95em; }
+  .exercise-card-meta { font-size: 0.78em; color: #888; margin-top: 2px; }
+  .exercise-card-actions { display: flex; gap: 6px; align-items: center; }
 
-    .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+  .ai-recommendation {
+    display: none;
+    margin: 12px 18px;
+    padding: 12px 14px;
+    background: #f5f0ff;
+    border-left: 3px solid #6c47ff;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #333;
+    line-height: 1.5;
+  }
 
-    /* HEADER */
-    .workout-header {
-      background: white;
-      border-radius: 10px;
-      padding: 20px 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .workout-header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .workout-date { font-size: 0.82em; color: #888; margin-bottom: 4px; }
-    .workout-title { font-size: 1.4em; font-weight: 700; }
-    .workout-subtitle { font-size: 0.9em; color: #666; margin-top: 4px; }
-    .header-actions { display: flex; gap: 8px; }
+  .sets-container { padding: 12px 18px; }
+  .sets-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 1fr 32px;
+    gap: 8px;
+    font-size: 0.75em;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    padding: 0 4px;
+  }
+  .set-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 1fr 32px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .set-number { font-size: 0.82em; color: #999; text-align: center; font-weight: 600; }
+  .set-input { padding: 7px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.88em; width: 100%; text-align: center; }
+  .set-input:focus { outline: none; border-color: #1a1a1a; }
+  .set-notes-input { padding: 7px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.88em; width: 100%; }
+  .set-notes-input:focus { outline: none; border-color: #1a1a1a; }
 
-    /* BUTTONS */
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.85em;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .btn-primary { background: #1a1a1a; color: white; }
-    .btn-primary:hover { background: #333; }
-    .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
-    .btn-secondary:hover { background: #e0e0e0; }
-    .btn-danger { background: #fff0f0; color: #cc0000; border: 1px solid #ffcccc; }
-    .btn-danger:hover { background: #ffe0e0; }
-    .btn-ai { background: #6c47ff; color: white; font-size: 0.8em; padding: 5px 10px; }
-    .btn-ai:hover { background: #5535dd; }
-    .btn-sm { padding: 5px 10px; font-size: 0.8em; }
-    .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 4px; color: #999; }
-    .btn-icon:hover { color: #333; }
+  .add-exercise-section {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .add-exercise-section h3 { font-size: 0.95em; margin-bottom: 12px; color: #555; }
+  .exercise-search { display: flex; gap: 8px; margin-bottom: 12px; }
+  .exercise-search input { flex: 1; }
+  .exercise-picker {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+  }
+  .exercise-picker-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.88em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .exercise-picker-item:hover { background: #f5f5f5; }
+  .exercise-picker-item:last-child { border-bottom: none; }
+  .picker-meta { font-size: 0.78em; color: #999; }
 
-    /* EXERCISE CARDS */
-    .exercise-card {
-      background: white;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-    .exercise-card-header {
-      padding: 14px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .exercise-card-name { font-weight: 600; font-size: 0.95em; }
-    .exercise-card-meta { font-size: 0.78em; color: #888; margin-top: 2px; }
-    .exercise-card-actions { display: flex; gap: 6px; align-items: center; }
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 20px;
+  }
+  .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
+  .modal-field input { width: 100%; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
 
-    /* AI RECOMMENDATION */
-    .ai-recommendation {
-      display: none;
-      margin: 12px 18px;
-      padding: 12px 14px;
-      background: #f5f0ff;
-      border-left: 3px solid #6c47ff;
-      border-radius: 4px;
-      font-size: 0.85em;
-      color: #333;
-      line-height: 1.5;
-    }
-
-    /* SETS TABLE */
-    .sets-container { padding: 12px 18px; }
-    .sets-header {
-      display: grid;
-      grid-template-columns: 40px 1fr 1fr 1fr 32px;
-      gap: 8px;
-      font-size: 0.75em;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-      padding: 0 4px;
-    }
-    .set-row {
-      display: grid;
-      grid-template-columns: 40px 1fr 1fr 1fr 32px;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    .set-number {
-      font-size: 0.82em;
-      color: #999;
-      text-align: center;
-      font-weight: 600;
-    }
-    .set-input {
-      padding: 7px 10px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 0.88em;
-      width: 100%;
-      text-align: center;
-    }
-    .set-input:focus { outline: none; border-color: #1a1a1a; }
-    .set-notes-input {
-      padding: 7px 10px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 0.88em;
-      width: 100%;
-    }
-    .set-notes-input:focus { outline: none; border-color: #1a1a1a; }
-
-    .add-set-row {
-      margin-top: 10px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    /* ADD EXERCISE SECTION */
-    .add-exercise-section {
-      background: white;
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin-top: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .add-exercise-section h3 { font-size: 0.95em; margin-bottom: 12px; color: #555; }
-    .exercise-search {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .exercise-search input {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.9em;
-    }
-    .exercise-search input:focus { outline: none; border-color: #1a1a1a; }
-    .exercise-picker {
-      max-height: 220px;
-      overflow-y: auto;
-      border: 1px solid #eee;
-      border-radius: 6px;
-    }
-    .exercise-picker-item {
-      padding: 10px 14px;
-      cursor: pointer;
-      border-bottom: 1px solid #f5f5f5;
-      font-size: 0.88em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .exercise-picker-item:hover { background: #f5f5f5; }
-    .exercise-picker-item:last-child { border-bottom: none; }
-    .picker-meta { font-size: 0.78em; color: #999; }
-
-    /* MODALS */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      width: 100%;
-      max-width: 440px;
-      margin: 0 20px;
-    }
-    .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
-    .modal-field { margin-bottom: 14px; }
-    .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
-    .modal-field input {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.9em;
-    }
-    .modal-field input:focus { outline: none; border-color: #1a1a1a; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-
-    .empty-exercises {
-      text-align: center;
-      color: #bbb;
-      padding: 32px 0;
-      font-size: 0.9em;
-    }
-  </style>
+  .empty-exercises { text-align: center; color: #bbb; padding: 32px 0; font-size: 0.9em; }
+</style>
 </head>
 <body>
 
@@ -355,36 +258,48 @@
       const card = document.createElement('div');
       card.className = 'exercise-card';
       card.id = `ex-card-${ex.id}`;
+      card.draggable = true;
+      card.dataset.workoutExerciseId = ex.id;
 
       card.innerHTML = `
         <div class="exercise-card-header">
-          <div>
-            <div class="exercise-card-name">${ex.name}</div>
-            <div class="exercise-card-meta">${ex.equipment} · ${ex.exercise_type} · Target: ${ex.rep_range_min}–${ex.rep_range_max} reps</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
+            <div>
+              <div class="exercise-card-name">${ex.name}</div>
+              <div class="exercise-card-meta">${ex.equipment} · ${ex.exercise_type} · Target: ${ex.rep_range_min}–${ex.rep_range_max} reps</div>
+            </div>
           </div>
-          <div class="exercise-card-actions">
-            <button class="btn btn-ai" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})">✨ Recommend</button>
-            <button class="btn btn-icon" onclick="removeExercise(${ex.id})" title="Remove exercise">✕</button>
-          </div>
+        <div class="exercise-card-actions">
+          <button class="btn btn-ai btn-sm" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})">✨ Recommend</button>
+          <button class="btn-icon" onclick="removeExercise(${ex.id})" title="Remove exercise">✕</button>
         </div>
-        <div class="ai-recommendation" id="ai-rec-${ex.id}"></div>
-        <div class="sets-container" id="sets-${ex.id}">
-          <div class="sets-header">
-            <span>Set</span>
-            <span>Weight</span>
-            <span>Reps</span>
-            <span>Notes</span>
-            <span></span>
-          </div>
-          ${buildSetRows(ex)}
+      </div>
+      <div class="ai-recommendation" id="ai-rec-${ex.id}"></div>
+      <div class="sets-container" id="sets-${ex.id}">
+        <div class="sets-header">
+          <span>Set</span>
+          <span>Weight</span>
+          <span>Reps</span>
+          <span>Notes</span>
+          <span></span>
         </div>
-        <div style="padding: 0 18px 14px">
-          <button class="btn btn-secondary btn-sm" onclick="addSet(${ex.id}, ${ex.sets ? ex.sets.length : 0})">+ Add Set</button>
-        </div>
-      `;
+        ${buildSetRows(ex)}
+      </div>
+      <div style="padding: 0 18px 14px">
+        <button class="btn btn-secondary btn-sm" onclick="addSet(${ex.id}, ${ex.sets ? ex.sets.length : 0})">+ Add Set</button>
+      </div>
+  `;
 
-      return card;
-    }
+  // Drag and drop events
+  card.addEventListener('dragstart', onDragStart);
+  card.addEventListener('dragover', onDragOver);
+  card.addEventListener('dragleave', onDragLeave);
+  card.addEventListener('drop', onDrop);
+  card.addEventListener('dragend', onDragEnd);
+
+  return card;
+}
 
     function buildSetRows(ex) {
       if (!ex.sets || ex.sets.length === 0) return '';
@@ -613,6 +528,68 @@
     }
 
     init();
+
+  // ── DRAG AND DROP ─────────────────────────────────────────────
+
+  let draggedCard = null;
+
+  function onDragStart(e) {
+    draggedCard = this;
+    setTimeout(() => this.classList.add('dragging'), 0);
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+    if (this === draggedCard) return;
+    this.classList.add('drag-over');
+  }
+
+  function onDragLeave() {
+    this.classList.remove('drag-over');
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+    if (this === draggedCard) return;
+
+    const container = document.getElementById('exercise-cards');
+    const cards = [...container.querySelectorAll('.exercise-card')];
+    const draggedIndex = cards.indexOf(draggedCard);
+    const targetIndex = cards.indexOf(this);
+
+  // Reorder in DOM
+  if (draggedIndex < targetIndex) {
+    container.insertBefore(draggedCard, this.nextSibling);
+  } else {
+    container.insertBefore(draggedCard, this);
+  }
+
+  // Update order in database
+  saveExerciseOrder();
+}
+
+  function onDragEnd() {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('drag-over'));
+    draggedCard = null;
+  }
+
+  async function saveExerciseOrder() {
+    const container = document.getElementById('exercise-cards');
+    const cards = [...container.querySelectorAll('.exercise-card')];
+
+  const updates = cards.map((card, index) => ({
+    id: parseInt(card.dataset.workoutExerciseId),
+    order_index: index
+  }));
+
+  await fetch(`/api/workouts/${workoutId}/reorder`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ exercises: updates })
+  });
+}
   </script>
 </body>
 </html>

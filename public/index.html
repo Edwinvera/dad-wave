@@ -2,141 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="/css/shared.css">
   <title>Dad Wave - History</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 1.6em; margin-bottom: 24px; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f5;
-      color: #1a1a1a;
-      min-height: 100vh;
-    }
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
 
-    .nav {
-      background: #1a1a1a;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      height: 56px;
-    }
-    .nav .logo { color: white; font-weight: 700; font-size: 1.1em; margin-right: auto; }
-    .nav a { color: #aaa; text-decoration: none; font-size: 0.9em; padding: 4px 0; border-bottom: 2px solid transparent; }
-    .nav a:hover { color: white; }
-    .nav a.active { color: white; border-bottom-color: white; }
+  .time-nav {
+    background: white;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .time-nav-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .time-nav-row:last-child { margin-bottom: 0; }
+  .time-label { font-size: 0.8em; color: #888; width: 48px; flex-shrink: 0; }
+  .time-options { display: flex; gap: 6px; flex-wrap: wrap; }
+  .time-btn {
+    padding: 4px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    background: white;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #444;
+  }
+  .time-btn:hover { border-color: #999; }
+  .time-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .time-btn.has-data { border-color: #aaa; font-weight: 500; }
 
-    .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+  .workout-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .workout-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+  .workout-date { font-size: 0.8em; color: #888; margin-bottom: 4px; }
+  .workout-title { font-weight: 600; font-size: 1em; }
+  .workout-subtitle { font-size: 0.85em; color: #666; margin-top: 3px; }
+  .workout-arrow { color: #ccc; font-size: 1.2em; }
 
-    /* PAGE HEADER */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    h1 { font-size: 1.6em; }
+  .empty-state { text-align: center; color: #999; padding: 60px 0; font-size: 0.9em; }
+  .empty-state p { margin-bottom: 16px; }
 
-    .btn {
-      padding: 8px 18px;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.9em;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .btn-primary { background: #1a1a1a; color: white; }
-    .btn-primary:hover { background: #333; }
-    .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
-    .btn-secondary:hover { background: #e0e0e0; }
-    .btn-ghost { background: none; color: #555; border: none; cursor: pointer; font-size: 0.9em; padding: 4px 8px; }
-    .btn-ghost:hover { color: #000; }
-
-    /* TIME NAV */
-    .time-nav {
-      background: white;
-      border-radius: 10px;
-      padding: 16px 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .time-nav-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .time-nav-row:last-child { margin-bottom: 0; }
-    .time-label { font-size: 0.8em; color: #888; width: 48px; flex-shrink: 0; }
-    .time-options { display: flex; gap: 6px; flex-wrap: wrap; }
-    .time-btn {
-      padding: 4px 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 16px;
-      background: white;
-      font-size: 0.82em;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: #444;
-    }
-    .time-btn:hover { border-color: #999; }
-    .time-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
-    .time-btn.has-data { border-color: #aaa; font-weight: 500; }
-
-    /* WORKOUT CARDS */
-    .workout-card {
-      background: white;
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      cursor: pointer;
-      transition: box-shadow 0.15s;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .workout-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
-    .workout-date { font-size: 0.8em; color: #888; margin-bottom: 4px; }
-    .workout-title { font-weight: 600; font-size: 1em; }
-    .workout-subtitle { font-size: 0.85em; color: #666; margin-top: 3px; }
-    .workout-arrow { color: #ccc; font-size: 1.2em; }
-
-    .empty-state { text-align: center; color: #999; padding: 60px 0; font-size: 0.9em; }
-    .empty-state p { margin-bottom: 16px; }
-
-    /* MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      width: 100%;
-      max-width: 440px;
-      margin: 0 20px;
-    }
-    .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
-    .modal-field { margin-bottom: 14px; }
-    .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
-    .modal-field input {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.9em;
-    }
-    .modal-field input:focus { outline: none; border-color: #1a1a1a; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-  </style>
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 20px;
+  }
+  .modal h2 { font-size: 1.1em; margin-bottom: 20px; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 5px; }
+  .modal-field input { width: 100%; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+</style>
 </head>
 <body>
 
