@@ -399,7 +399,7 @@
             onblur="updateSet(${set.id}, this)" data-field="weight" />
           <input class="set-input" type="number" value="${set.reps}" placeholder="reps"
             onblur="updateSet(${set.id}, this)" data-field="reps" />
-          <input class="set-notes-input" type="text" value="${set.notes || ''}" placeholder="notes"
+          <input class="set-notes-input" type="text" value="${set.notes !== null && set.notes !== undefined ? set.notes : ''}" placeholder="notes"
             onblur="updateSet(${set.id}, this)" data-field="notes" />
           <button class="btn-icon" onclick="deleteSet(${set.id}, ${workoutExerciseId})">✕</button>
         </div>
@@ -417,7 +417,7 @@
           set_number: currentSetCount + 1,
           weight: 0,
           reps: 0,
-          notes: ''
+          notes: null
         })
       });
       const newSet = await res.json();
@@ -520,8 +520,9 @@
       // Find exercise details
       const exerciseDetails = allExercises.find(e => e.id === exerciseId);
       const newEx = {
-        ...workoutExercise,
         ...exerciseDetails,
+        ...workoutExercise,
+        id: workoutExercise.id,
         exercise_id: exerciseId,
         sets: []
       };

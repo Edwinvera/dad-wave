@@ -137,7 +137,11 @@ app.get('/api/workouts/:id', (req, res) => {
     ).all(ex.id);
   });
 
-  res.json({ ...workout, exercises: workoutExercises });
+  res.json({
+  ...workout,
+  performed_at: workout.performed_at.slice(0, 10),
+  exercises: workoutExercises
+  });
 });
 
 // Create a new workout
@@ -207,13 +211,16 @@ app.delete('/api/workout-exercises/:id', (req, res) => {
 // Add a set
 app.post('/api/sets', (req, res) => {
   const { workout_exercise_id, set_number, weight, reps, notes } = req.body;
-  if (!workout_exercise_id || !set_number || !weight || !reps) {
+
+  if (!workout_exercise_id || !set_number || weight === undefined || reps === undefined) {
     return res.status(400).json({ error: 'All fields are required' });
   }
+
   const result = db.prepare(
     'INSERT INTO sets (workout_exercise_id, set_number, weight, reps, notes) VALUES (?, ?, ?, ?, ?)'
   ).run(workout_exercise_id, set_number, weight, reps, notes || null);
-  res.json({ id: result.lastInsertRowid, workout_exercise_id, set_number, weight, reps, notes });
+
+  res.json({ id: result.lastInsertRowid, workout_exercise_id, set_number, weight, reps, notes: notes || null });
 });
 
 // Update a set
