@@ -266,7 +266,7 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="drag-handle" title="Drag to reorder">⠿</span>
             <div>
-              <div class="exercise-card-name">${ex.name}</div>
+              <div class="exercise-card-name" style="cursor:pointer" onclick="window.location.href='/exercise-detail.html?id=${ex.exercise_id}&from=workout'">${ex.name}</div>
               <div class="exercise-card-meta">${ex.equipment} · ${ex.exercise_type} · Target: ${ex.rep_range_min}–${ex.rep_range_max} reps</div>
             </div>
           </div>

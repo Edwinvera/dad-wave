@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dad Wave - Exercise History</title>
+  <link rel="stylesheet" href="/css/shared.css">
+  <style>
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 1.6em; margin-bottom: 4px; }
+    .exercise-meta { font-size: 0.85em; color: #888; margin-bottom: 24px; }
+
+    /* STAT CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.72em;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+    .stat-unit {
+      font-size: 0.75em;
+      color: #aaa;
+      margin-left: 2px;
+    }
+
+    /* CHART SECTION */
+    .chart-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .chart-title { font-size: 0.95em; font-weight: 600; color: #333; }
+
+    /* METRIC SELECTOR */
+    .metric-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .metric-tab {
+      padding: 5px 12px;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      background: white;
+      font-size: 0.8em;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #555;
+    }
+    .metric-tab:hover { border-color: #999; }
+    .metric-tab.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
+    /* PERIOD SELECTOR */
+    .period-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .period-tab {
+      padding: 4px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      font-size: 0.78em;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #555;
+    }
+    .period-tab:hover { border-color: #999; }
+    .period-tab.active { background: #6c47ff; color: white; border-color: #6c47ff; }
+
+    /* CHART CONTAINER */
+    .chart-container { position: relative; height: 280px; }
+
+    /* RAW DATA TABLE */
+    .raw-data-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .raw-data-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .raw-data-title { font-size: 0.95em; font-weight: 600; color: #333; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 0.78em;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    td {
+      padding: 10px 12px;
+      font-size: 0.88em;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .empty-state { text-align: center; color: #bbb; padding: 60px 0; font-size: 0.9em; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: #666; text-decoration: none; font-size: 0.88em; margin-bottom: 20px; }
+    .back-link:hover { color: #1a1a1a; }
+
+    /* DARK MODE */
+    body.dark .stat-card { background: #1e1e1e; }
+    body.dark .stat-value { color: #f0f0f0; }
+    body.dark .stat-label { color: #666; }
+    body.dark .stat-unit { color: #555; }
+    body.dark .chart-card { background: #1e1e1e; }
+    body.dark .chart-title { color: #ccc; }
+    body.dark .metric-tab { background: #2a2a2a; border-color: #444; color: #aaa; }
+    body.dark .metric-tab.active { background: #f0f0f0; color: #1a1a1a; border-color: #f0f0f0; }
+    body.dark .period-tab { background: #2a2a2a; border-color: #444; color: #aaa; }
+    body.dark .period-tab.active { background: #6c47ff; color: white; border-color: #6c47ff; }
+    body.dark .raw-data-card { background: #1e1e1e; }
+    body.dark .raw-data-title { color: #ccc; }
+    body.dark th { color: #666; border-bottom-color: #2a2a2a; }
+    body.dark td { border-bottom-color: #2a2a2a; }
+    body.dark tr:hover td { background: #222; }
+    body.dark .back-link { color: #888; }
+    body.dark .back-link:hover { color: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <span class="logo">Dad Wave</span>
+    <a href="/index.html">History</a>
+    <a href="/exercises.html" class="active">Exercises</a>
+    <a href="/profile.html">Profile</a>
+    <a href="/settings.html">Settings</a>
+  </nav>
+
+  <div class="container">
+    <a class="back-link" id="back-link" href="/exercises.html">← Back</a>
+
+    <h1 id="exercise-name">Loading...</h1>
+    <div class="exercise-meta" id="exercise-meta"></div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-label">Max Weight</div><div class="stat-value" id="stat-max-weight">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Weight</div><div class="stat-value" id="stat-avg-weight">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Volume</div><div class="stat-value" id="stat-total-volume">—</div></div>
+      <div class="stat-card"><div class="stat-label">Est. 1RM</div><div class="stat-value" id="stat-1rm">—</div></div>
+      <div class="stat-card"><div class="stat-label">Max Reps</div><div class="stat-value" id="stat-max-reps">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Reps</div><div class="stat-value" id="stat-avg-reps">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Reps</div><div class="stat-value" id="stat-total-reps">—</div></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="metric-tabs">
+          <button class="metric-tab active" onclick="setMetric('volume', this)">Volume</button>
+          <button class="metric-tab" onclick="setMetric('maxWeight', this)">Max Weight</button>
+          <button class="metric-tab" onclick="setMetric('avgWeight', this)">Avg Weight</button>
+          <button class="metric-tab" onclick="setMetric('estimated1RM', this)">Est. 1RM</button>
+          <button class="metric-tab" onclick="setMetric('intensity', this)">Intensity</button>
+        </div>
+        <div class="period-tabs">
+          <button class="period-tab" onclick="setPeriod(1, this)">1M</button>
+          <button class="period-tab" onclick="setPeriod(3, this)">3M</button>
+          <button class="period-tab" onclick="setPeriod(6, this)">6M</button>
+          <button class="period-tab active" onclick="setPeriod(12, this)">1Y</button>
+          <button class="period-tab" onclick="setPeriod(24, this)">2Y</button>
+          <button class="period-tab" onclick="setPeriod(null, this)">All</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="main-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Raw Data -->
+    <div class="raw-data-card">
+      <div class="raw-data-header">
+        <span class="raw-data-title">Workout Log</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Volume</th>
+            <th>Max Weight</th>
+            <th>Avg Weight</th>
+            <th>Est. 1RM</th>
+            <th>Intensity</th>
+          </tr>
+        </thead>
+        <tbody id="raw-data-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/shared.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const exerciseId = params.get('id');
+    const from = params.get('from') || 'exercises';
+
+    let allChartData = [];
+    let currentMetric = 'volume';
+    let currentPeriod = 12;
+    let chart = null;
+
+    const metricConfig = {
+      volume: {
+        label: 'Total Volume (lbs)',
+        color: '#6c47ff',
+        unit: 'lbs',
+        key: 'volume'
+      },
+      maxWeight: {
+        label: 'Max Weight (lbs)',
+        color: '#0066cc',
+        unit: 'lbs',
+        key: 'maxWeight'
+      },
+      avgWeight: {
+        label: 'Avg Weight (lbs)',
+        color: '#00aa44',
+        unit: 'lbs',
+        key: 'avgWeight'
+      },
+      estimated1RM: {
+        label: 'Estimated 1RM (lbs)',
+        color: '#cc6600',
+        unit: 'lbs',
+        key: 'estimated1RM'
+      },
+      intensity: {
+        label: 'Intensity (%)',
+        color: '#cc0044',
+        unit: '%',
+        key: 'intensity'
+      }
+    };
+
+    // ── INIT ──────────────────────────────────────────────────
+
+    async function init() {
+      if (!exerciseId) { window.location.href = '/exercises.html'; return; }
+
+      // Set back link
+      const backLink = document.getElementById('back-link');
+      if (from === 'workout') {
+        backLink.href = document.referrer || '/index.html';
+        backLink.textContent = '← Back to Workout';
+      } else {
+        backLink.href = '/exercises.html';
+        backLink.textContent = '← Back to Exercises';
+      }
+
+      const res = await fetch(`/api/exercises/${exerciseId}/stats`);
+      const data = await res.json();
+
+      // Header
+      document.getElementById('exercise-name').textContent = data.exercise.name;
+      document.getElementById('exercise-meta').textContent =
+        `${data.exercise.equipment} · ${data.exercise.exercise_type} · Target: ${data.exercise.rep_range_min}–${data.exercise.rep_range_max} reps`;
+
+      if (!data.stats) {
+        document.getElementById('stats-grid').innerHTML =
+          '<div class="empty-state">No data yet — log some sessions to see stats here.</div>';
+        return;
+      }
+
+      // Stat cards
+      const unit = 'lbs';
+      document.getElementById('stat-max-weight').innerHTML = `${data.stats.maxWeight}<span class="stat-unit">${unit}</span>`;
+      document.getElementById('stat-avg-weight').innerHTML = `${data.stats.avgWeight}<span class="stat-unit">${unit}</span>`;
+      document.getElementById('stat-total-volume').innerHTML = `${data.stats.totalVolume.toLocaleString()}<span class="stat-unit">${unit}</span>`;
+      document.getElementById('stat-1rm').innerHTML = `${data.stats.estimated1RM}<span class="stat-unit">${unit}</span>`;
+      document.getElementById('stat-max-reps').textContent = data.stats.maxReps;
+      document.getElementById('stat-avg-reps').textContent = data.stats.avgReps;
+      document.getElementById('stat-total-reps').textContent = data.stats.totalReps.toLocaleString();
+
+      allChartData = data.chartData;
+      renderChart();
+      renderRawData();
+    }
+
+    // ── PERIOD & METRIC ───────────────────────────────────────
+
+    function setMetric(metric, btn) {
+      currentMetric = metric;
+      document.querySelectorAll('.metric-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChart();
+    }
+
+    function setPeriod(months, btn) {
+      currentPeriod = months;
+      document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChart();
+      renderRawData();
+    }
+
+    function getFilteredData() {
+      if (!currentPeriod) return allChartData;
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - currentPeriod);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+      return allChartData.filter(d => d.date >= cutoffStr);
+    }
+
+    // ── CHART ─────────────────────────────────────────────────
+
+    function renderChart() {
+      const filtered = getFilteredData();
+      const config = metricConfig[currentMetric];
+
+      const labels = filtered.map(d => {
+        const [y, m, day] = d.date.split('-');
+        return new Date(y, m - 1, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      const values = filtered.map(d => d[config.key]);
+
+      if (chart) chart.destroy();
+
+      const isDark = document.body.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+      const tickColor = isDark ? '#666' : '#999';
+
+      chart = new Chart(document.getElementById('main-chart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: config.label,
+            data: values,
+            borderColor: config.color,
+            backgroundColor: config.color + '18',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.parsed.y.toLocaleString()} ${config.unit}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: tickColor, maxTicksLimit: 8 }
+            },
+            y: {
+              grid: { color: gridColor },
+              ticks: {
+                color: tickColor,
+                callback: val => val.toLocaleString() + ' ' + config.unit
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ── RAW DATA ──────────────────────────────────────────────
+
+    function renderRawData() {
+      const filtered = getFilteredData();
+      const tbody = document.getElementById('raw-data-body');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#bbb; padding:24px">No data for this period</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      [...filtered].reverse().forEach(d => {
+        const [y, m, day] = d.date.split('-');
+        const dateStr = new Date(y, m - 1, day).toLocaleDateString();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${d.volume.toLocaleString()} lbs</td>
+          <td>${d.maxWeight} lbs</td>
+          <td>${d.avgWeight} lbs</td>
+          <td>${d.estimated1RM} lbs</td>
+          <td>${d.intensity}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

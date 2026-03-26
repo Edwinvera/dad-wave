@@ -190,7 +190,7 @@
         const div = document.createElement('div');
         div.className = 'exercise-item';
         div.innerHTML = `
-          <div>
+          <div onclick="window.location.href='/exercise-detail.html?id=${ex.id}&from=exercises'" style="flex:1; cursor:pointer">
             <div class="exercise-name">${ex.name}</div>
             <div class="exercise-meta">
               ${ex.equipment} · ${ex.exercise_type} · ${ex.rep_range_min}–${ex.rep_range_max} reps · +${ex.weight_increment} lbs
@@ -202,8 +202,8 @@
           </div>
         `;
         list.appendChild(div);
-      });
-    }
+          });
+        }
 
     function loadExercises() {
       getExercises().then(data => {

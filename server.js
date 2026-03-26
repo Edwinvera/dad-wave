@@ -455,6 +455,78 @@ app.put('/api/workouts/:workout_id/reorder', (req, res) => {
   res.json({ success: true });
 });
 
+// API: exercise history stats
+app.get('/api/exercises/:id/stats', (req, res) => {
+  const exercise = db.prepare('SELECT * FROM exercises WHERE id = ?').get(req.params.id);
+  if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
+
+  const allSets = db.prepare(`
+    SELECT s.weight, s.reps, w.performed_at,
+           (s.weight * s.reps) as volume,
+           (s.weight * (1 + s.reps / 30.0)) as estimated_1rm
+    FROM sets s
+    JOIN workout_exercises we ON s.workout_exercise_id = we.id
+    JOIN workouts w ON we.workout_id = w.id
+    WHERE we.exercise_id = ?
+    ORDER BY w.performed_at ASC
+  `).all(req.params.id);
+
+  if (allSets.length === 0) {
+    return res.json({ exercise, stats: null, chartData: [] });
+  }
+
+  // ── LIFETIME STATS ──────────────────────────────────────────
+  const maxWeight = Math.max(...allSets.map(s => s.weight));
+  const avgWeight = allSets.reduce((sum, s) => sum + s.weight, 0) / allSets.length;
+  const totalVolume = allSets.reduce((sum, s) => sum + s.volume, 0);
+  const maxReps = Math.max(...allSets.map(s => s.reps));
+  const avgReps = allSets.reduce((sum, s) => sum + s.reps, 0) / allSets.length;
+  const totalReps = allSets.reduce((sum, s) => sum + s.reps, 0);
+  const estimated1RM = Math.max(...allSets.map(s => s.estimated_1rm));
+
+  // ── PER WORKOUT CHART DATA ──────────────────────────────────
+  // Group sets by workout date
+  const workoutMap = {};
+  allSets.forEach(s => {
+    const date = s.performed_at.slice(0, 10);
+    if (!workoutMap[date]) {
+      workoutMap[date] = { date, sets: [] };
+    }
+    workoutMap[date].sets.push(s);
+  });
+
+  const chartData = Object.values(workoutMap).map(w => {
+    const volume = w.sets.reduce((sum, s) => sum + s.volume, 0);
+    const maxW = Math.max(...w.sets.map(s => s.weight));
+    const avgW = w.sets.reduce((sum, s) => sum + s.weight, 0) / w.sets.length;
+    const est1RM = Math.max(...w.sets.map(s => s.weight * (1 + s.reps / 30.0)));
+    const intensity = w.sets.reduce((sum, s) => sum + (s.weight / est1RM * 100), 0) / w.sets.length;
+
+    return {
+      date: w.date,
+      volume: Math.round(volume),
+      maxWeight: maxW,
+      avgWeight: Math.round(avgW * 10) / 10,
+      estimated1RM: Math.round(est1RM),
+      intensity: Math.round(intensity * 10) / 10
+    };
+  });
+
+  res.json({
+    exercise,
+    stats: {
+      maxWeight,
+      avgWeight: Math.round(avgWeight * 10) / 10,
+      totalVolume: Math.round(totalVolume),
+      maxReps,
+      avgReps: Math.round(avgReps * 10) / 10,
+      totalReps,
+      estimated1RM: Math.round(estimated1RM)
+    },
+    chartData
+  });
+});
+
 // ─── START SERVER ─────────────────────────────────────────────
 
 app.listen(PORT, () => {
