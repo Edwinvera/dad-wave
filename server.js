@@ -527,6 +527,42 @@ app.get('/api/exercises/:id/stats', (req, res) => {
   });
 });
 
+// Rule-based recommendation (fallback while AI is disabled)
+app.get('/api/recommendation/:exercise_id', (req, res) => {
+  const exercise = db.prepare('SELECT * FROM exercises WHERE id = ?').get(req.params.exercise_id);
+  if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
+
+  const lastSession = db.prepare(`
+    SELECT s.weight, s.reps, w.performed_at
+    FROM sets s
+    JOIN workout_exercises we ON s.workout_exercise_id = we.id
+    JOIN workouts w ON we.workout_id = w.id
+    WHERE we.exercise_id = ?
+    ORDER BY w.performed_at DESC, s.set_number DESC
+    LIMIT 1
+  `).get(req.params.exercise_id);
+
+  if (!lastSession) {
+    return res.json({
+      message: `No previous data found for ${exercise.name}. Start with a weight you can comfortably handle for ${exercise.rep_range_min}–${exercise.rep_range_max} reps.`
+    });
+  }
+
+  let recommendedWeight = lastSession.weight;
+  let message = '';
+
+  if (lastSession.reps >= exercise.rep_range_max) {
+    recommendedWeight = lastSession.weight + exercise.weight_increment;
+    message = `Last session: ${lastSession.weight} lbs × ${lastSession.reps} reps. You hit the top of your rep range — increase to ${recommendedWeight} lbs next session.`;
+  } else if (lastSession.reps >= exercise.rep_range_min) {
+    message = `Last session: ${lastSession.weight} lbs × ${lastSession.reps} reps. You're within your target range — stick with ${recommendedWeight} lbs and aim for more reps.`;
+  } else {
+    message = `Last session: ${lastSession.weight} lbs × ${lastSession.reps} reps. You fell below your target range — stay at ${recommendedWeight} lbs and focus on hitting ${exercise.rep_range_min} reps.`;
+  }
+
+  res.json({ recommendedWeight, message });
+});
+
 // ─── START SERVER ─────────────────────────────────────────────
 
 app.listen(PORT, () => {

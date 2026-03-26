@@ -271,7 +271,9 @@
             </div>
           </div>
         <div class="exercise-card-actions">
-          <button class="btn btn-ai btn-sm" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})">✨ Recommend</button>
+          <!-- AI recommendation button (disabled for now) -->
+          <!-- <button class="btn btn-ai btn-sm" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})">✨ Recommend</button> -->
+          <button class="btn btn-ai btn-sm" onclick="getRecommendation(${ex.exercise_id}, ${ex.id})" disabled title="AI features coming soon">✨ Recommend</button>
           <button class="btn-icon" onclick="removeExercise(${ex.id})" title="Remove exercise">✕</button>
         </div>
       </div>
@@ -474,16 +476,15 @@
     async function getRecommendation(exerciseId, workoutExerciseId) {
       const box = document.getElementById(`ai-rec-${workoutExerciseId}`);
       box.style.display = 'block';
-      box.textContent = '✨ Getting recommendation...';
+      box.textContent = 'Getting recommendation...';
 
-      const res = await fetch('/api/ai/recommendation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exercise_id: exerciseId, workout_exercise_id: workoutExerciseId })
-      });
-
-      const data = await res.json();
-      box.textContent = data.message;
+      try {
+        const res = await fetch(`/api/recommendation/${exerciseId}`);
+        const data = await res.json();
+        box.textContent = data.message;
+      } catch (err) {
+        box.textContent = 'Unable to load recommendation right now.';
+      }
     }
 
     // ── EDIT WORKOUT ──────────────────────────────────────────

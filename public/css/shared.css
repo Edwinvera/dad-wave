@@ -199,3 +199,9 @@ body.dark .drag-handle:hover { color: #aaa; }
 }
 .drag-handle:hover { color: #666; }
 .drag-handle:active { cursor: grabbing; }
+
+.btn-ai:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
